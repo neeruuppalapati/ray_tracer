@@ -1,4 +1,5 @@
-use crate::vector::*;
+use crate::foundation::vector::{Vector, rand_in_unit_circle};
+use crate::foundation::cam::*;
 
 // essentially just directional vector even tho vectors are already directional
 
@@ -15,6 +16,18 @@ impl Ray {
     pub fn at(&self, f: f32) -> Vector {
         self.origin + f * self.direction
     }
+}
+
+// get ray releative to a point from camera pov
+pub fn get_ray(cam: &Camera, u: f32, v: f32) -> Ray {
+    let radius = cam.lens_radius * rand_in_unit_circle();
+    let offset = (cam.u * radius.x) + (cam.v * radius.y);
+    let origin  = cam.origin + offset;
+    Ray::new(
+        origin,
+        cam.lower_left_corner + u * cam.horizontal + v * cam.vertical - origin,
+    )
+
 }
 
 // ray tests

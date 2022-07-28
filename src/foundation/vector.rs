@@ -1,4 +1,5 @@
-
+#[allow(unused_imports)]
+use rand::Rng;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 use std::ops::{AddAssign, DivAssign, MulAssign, SubAssign};
 
@@ -163,6 +164,74 @@ macro_rules! impl_f32OpAssign {
 
 impl_f32OpAssign!(MulAssign, mul_assign, *);
 impl_f32OpAssign!(DivAssign, div_assign, /);
+
+const AVG: usize = 1;
+pub struct Checker {
+    i: usize,
+    e: [f32; AVG],
+}
+impl Checker {
+    pub fn new() -> Checker {
+        Checker {
+            i: 0,
+            e: [0.0; AVG],
+        }
+    }
+    pub fn update(&mut self, d: f32) {
+        if !d.is_normal() {
+            return;
+        }
+        self.e[self.i] = d;
+        self.i = (self.i + 1) % AVG;
+    }
+    pub fn get(&self) -> f32 {
+        self.e
+            .iter().filter(|x| **x > 0.00001)
+            .fold(0., |a, x| a + x) / AVG as f32
+    }
+}
+
+// create random instances for convenience
+pub fn rand_in_unit_sphere() -> Vector {
+    let mut rng = rand::thread_rng();
+    loop {
+        let v = 2.0 * Vector::new(
+            rng.gen::<f32>(),
+            rng.gen::<f32>(),
+            rng.gen::<f32>(), 
+        )
+        - Vector::new(
+            1.0,
+            1.0,
+            1.0,
+        );
+        if v.size() < 1. {
+            break v;
+        }
+    }
+}
+
+pub fn rand_in_unit_circle() -> Vector {
+    let mut rng = rand::thread_rng();
+    loop {
+        let v = 2.0 * Vector::new(
+            rng.gen::<f32>(),
+            rng.gen::<f32>(),
+            0.0, 
+        )
+        - Vector::new(
+            1.0,
+            1.0,
+            0.0,
+        );
+        if v.size() < 1. {
+            break v;
+        }
+    }
+}
+
+
+
 
 // vector tests
 #[cfg(test)]
